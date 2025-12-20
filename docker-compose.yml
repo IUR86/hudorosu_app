@@ -4,14 +4,14 @@ services:
       context: ./app
       dockerfile: ../docker/node/Dockerfile
     ports:
-      - "3000:3000"
+      - "${APP_PORT}:${APP_PORT}"
     volumes:
       - ./app:/app
       - /app/node_modules
     environment:
-      - DATABASE_URL=postgres://user:password@db:5432/mydb
-      - NODE_ENV=development
-      - FRONTEND_URL=http://localhost:5173
+      - DATABASE_URL=${DB_URL}
+      - NODE_ENV=${NODE_ENV}
+      - FRONTEND_URL=http://localhost:${FRONTEND_PORT}
     depends_on:
       - db
 
@@ -20,12 +20,13 @@ services:
       context: ./frontend
       dockerfile: ../docker/node/Dockerfile
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
+      - VITE_API_URL=http://app:${APP_PORT} 
     command: npm run dev -- --host
 
   db:
@@ -33,9 +34,9 @@ services:
       context: ./
       dockerfile: ./docker/postgres/Dockerfile
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=mydb
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "5432:5432"
     volumes:

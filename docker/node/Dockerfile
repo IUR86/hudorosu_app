@@ -1,4 +1,3 @@
-# 軽量なNode.jsイメージを使用
 FROM node:20-slim
 
 WORKDIR /app
