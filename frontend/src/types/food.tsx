@@ -40,4 +40,3 @@ export interface Food {
 }
 
 export type Foods = Food[];
-

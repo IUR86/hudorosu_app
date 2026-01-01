@@ -1,4 +1,3 @@
-// バックエンドAPIのレスポンス型
 export interface UserResponse {
     id: number;
     email: string;
@@ -9,7 +8,6 @@ export interface UserResponse {
     updated_at: string;
 }
 
-// フロントエンドで使用する型
 export interface User {
     id: number;
     email: string;

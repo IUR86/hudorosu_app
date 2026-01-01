@@ -16,7 +16,6 @@ export const AdminAside: React.FC = () => {
                 setAppName(name);
             } catch (error) {
                 console.error('アプリ名取得エラー:', error);
-                // エラーが発生してもデフォルト値を使用
             }
         };
 

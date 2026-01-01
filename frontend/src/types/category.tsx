@@ -1,4 +1,3 @@
-// バックエンドAPIのレスポンス型
 export interface CategoryResponse {
     id: number;
     name: string;
@@ -6,7 +5,6 @@ export interface CategoryResponse {
     foodCount?: number;
 }
 
-// フロントエンドで使用する型（色情報を含む）
 export interface Category {
     id: number;
     name: string;

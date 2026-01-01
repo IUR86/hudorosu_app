@@ -10,6 +10,12 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const { isAuthenticated, isLoading, user } = useAuth();
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin/login';
+    };
+
     if (isLoading) {
         return (
             <div className="fixed inset-0 flex items-center justify-center bg-slate-50">
@@ -25,7 +31,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         return <Navigate to="/admin/login" replace />;
     }
 
-    // 管理者のみアクセス可能
     if (user?.role !== ROLE.ADMIN) {
         return (
             <div className="fixed inset-0 flex items-center justify-center bg-slate-50">
@@ -33,15 +38,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
                     <i className="fas fa-ban text-6xl text-red-500 mb-4"></i>
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">アクセス権限がありません</h2>
                     <p className="text-slate-600 mb-4">管理画面にアクセスするには管理者権限が必要です。</p>
-                    <button
-                        onClick={() => {
-                            // ログアウト処理
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('user');
-                            window.location.href = '/admin/login';
-                        }}
-                        className="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors font-bold"
-                    >
+                    <button onClick={handleLogout} className="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors font-bold">
                         ログイン画面に戻る
                     </button>
                 </div>
@@ -51,4 +48,3 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     return children;
 };
-

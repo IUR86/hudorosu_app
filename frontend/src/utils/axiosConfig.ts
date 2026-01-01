@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Axiosインスタンスを作成
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000/api',
     headers: {
@@ -8,7 +7,6 @@ const apiClient = axios.create({
     },
 });
 
-// リクエストインターセプター: トークンを自動的に追加
 apiClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -22,12 +20,10 @@ apiClient.interceptors.request.use(
     }
 );
 
-// レスポンスインターセプター: 401エラー時にログアウト
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // 認証エラーの場合、トークンを削除してログインページにリダイレクト
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/admin/login';
@@ -37,4 +33,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-

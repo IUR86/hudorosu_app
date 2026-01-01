@@ -46,4 +46,3 @@ export const updateAllergen = async (id: number, data: {
 export const deleteAllergen = async (id: number): Promise<void> => {
     await apiClient.delete(`/admin/allergens/${id}`);
 };
-

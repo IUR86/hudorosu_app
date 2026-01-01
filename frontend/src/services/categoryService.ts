@@ -75,4 +75,3 @@ export const updateCategory = async (id: number, data: {
 export const deleteCategory = async (id: number): Promise<void> => {
     await apiClient.delete(`/admin/categories/${id}`);
 };
-

@@ -75,7 +75,6 @@ export const getAppName = async (): Promise<string> => {
         return response.data.app_name;
     } catch (error) {
         console.error('Get app name error:', error);
-        return 'FoodDB'; // デフォルト値
+        return 'FoodDB';
     }
 };
-

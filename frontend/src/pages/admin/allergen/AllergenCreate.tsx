@@ -127,4 +127,3 @@ export const AllergenCreatePage: React.FC = () => {
         </div>
     );
 };
-
