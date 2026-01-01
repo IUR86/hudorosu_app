@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminAside } from '@/components/admin/layout/AdminAside';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
+import { FlashMessage } from '@/components/common/FlashMessage';
 import { createUser } from '@/services/userService';
 import { ROLE, ROLE_LABELS } from '@/constants/role';
 
@@ -93,12 +94,12 @@ export const UserCreatePage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* エラーメッセージ */}
-                    {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                            <p className="font-medium">{error}</p>
-                        </div>
-                    )}
+                    {/* フラッシュメッセージ */}
+                    <FlashMessage
+                        message={error}
+                        type="error"
+                        onClose={() => setError(null)}
+                    />
 
                     {/* フォーム */}
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

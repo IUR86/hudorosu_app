@@ -32,3 +32,50 @@ export const changePassword = async (currentPassword: string, newPassword: strin
     });
 };
 
+export interface SystemSetting {
+    value: string;
+    description: string | null;
+    id: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface SystemSettings {
+    [key: string]: SystemSetting;
+}
+
+/**
+ * システム設定を取得する
+ * @returns システム設定
+ */
+export const getSystemSettings = async (): Promise<SystemSettings> => {
+    const response = await apiClient.get<SystemSettings>('/admin/settings/system');
+    return response.data;
+};
+
+/**
+ * システム設定を更新する
+ * @param settings 更新する設定（key-value形式）
+ * @returns 更新されたシステム設定
+ */
+export const updateSystemSettings = async (settings: Record<string, string>): Promise<SystemSettings> => {
+    const response = await apiClient.put<{ message: string; settings: SystemSettings }>('/admin/settings/system', {
+        settings
+    });
+    return response.data.settings;
+};
+
+/**
+ * アプリ名を取得する
+ * @returns アプリ名
+ */
+export const getAppName = async (): Promise<string> => {
+    try {
+        const response = await apiClient.get<{ app_name: string }>('/admin/settings/app-name');
+        return response.data.app_name;
+    } catch (error) {
+        console.error('Get app name error:', error);
+        return 'FoodDB'; // デフォルト値
+    }
+};
+

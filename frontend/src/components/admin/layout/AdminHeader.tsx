@@ -2,13 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const AdminHeader: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
-
-    const handleLogout = () => {
-        logout();
-        navigate("/admin/login");
-    };
 
     const userInitial = user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U";
 
@@ -23,12 +18,6 @@ export const AdminHeader: React.FC = () => {
                         {userInitial}
                     </div>
                     <span className="text-sm font-medium">{user?.name || user?.email || "ユーザー"}</span>
-                </button>
-                <button
-                    onClick={handleLogout}
-                    className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors"
-                >
-                    ログアウト
                 </button>
             </div>
         </header>

@@ -29,6 +29,50 @@ export const fetchCategories = async (): Promise<Category[]> => {
     return response.data.map((category) => ({
         ...category,
         color: getCategoryColor(category.name),
+        foodCount: category.foodCount || 0,
     }));
+};
+
+/**
+ * 新規カテゴリーを作成する
+ * @param data カテゴリー作成データ
+ * @returns 作成されたカテゴリー情報
+ */
+export const createCategory = async (data: {
+    name: string;
+    description?: string;
+}): Promise<Category> => {
+    const response = await apiClient.post<CategoryResponse>('/admin/categories/create', data);
+    return {
+        ...response.data,
+        color: getCategoryColor(response.data.name),
+        foodCount: response.data.foodCount || 0,
+    };
+};
+
+/**
+ * カテゴリー情報を更新する
+ * @param id カテゴリーID
+ * @param data 更新するカテゴリー情報
+ * @returns 更新されたカテゴリー情報
+ */
+export const updateCategory = async (id: number, data: {
+    name: string;
+    description?: string;
+}): Promise<Category> => {
+    const response = await apiClient.put<CategoryResponse>(`/admin/categories/${id}`, data);
+    return {
+        ...response.data,
+        color: getCategoryColor(response.data.name),
+        foodCount: response.data.foodCount || 0,
+    };
+};
+
+/**
+ * カテゴリーを削除する
+ * @param id カテゴリーID
+ */
+export const deleteCategory = async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/categories/${id}`);
 };
 

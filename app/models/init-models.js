@@ -7,6 +7,7 @@ var _foods = require("./foods");
 var _google_auth = require("./google_auth");
 var _local_auth = require("./local_auth");
 var _login_logs = require("./login_logs");
+var _settings = require("./settings");
 var _users = require("./users");
 
 function initModels(sequelize) {
@@ -18,6 +19,7 @@ function initModels(sequelize) {
   var google_auth = _google_auth(sequelize, DataTypes);
   var local_auth = _local_auth(sequelize, DataTypes);
   var login_logs = _login_logs(sequelize, DataTypes);
+  var settings = _settings(sequelize, DataTypes);
   var users = _users(sequelize, DataTypes);
 
   allergens.belongsToMany(foods, { as: 'food_id_foods', through: food_allergens, foreignKey: "allergen_id", otherKey: "food_id" });
@@ -46,6 +48,7 @@ function initModels(sequelize) {
     google_auth,
     local_auth,
     login_logs,
+    settings,
     users,
   };
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminAside } from '@/components/admin/layout/AdminAside';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
+import { FlashMessage } from '@/components/common/FlashMessage';
 import { User } from '@/types/user';
 import { fetchUsers, deleteUser } from '@/services/userService';
 import { ROLE, ROLE_BADGE_COLORS, ROLE_LABELS } from '@/constants/role';
@@ -123,12 +124,12 @@ export const UserIndexPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* エラーメッセージ */}
-                    {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                            <p className="font-medium">{error}</p>
-                        </div>
-                    )}
+                    {/* フラッシュメッセージ */}
+                    <FlashMessage
+                        message={error}
+                        type="error"
+                        onClose={() => setError(null)}
+                    />
 
                     {/* ローディング状態 */}
                     {isLoading ? (

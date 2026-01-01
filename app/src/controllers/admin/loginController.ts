@@ -45,14 +45,41 @@ export const loginController = async (req: Request, res: Response) => {
             });
         }
 
-        // 4. JWTトークンの発行
+        // 4. ログインログを作成
+        try {
+            // IPアドレスの取得
+            let ipAddress: string | null = null;
+            const forwardedFor = req.headers['x-forwarded-for'];
+            if (forwardedFor) {
+                if (Array.isArray(forwardedFor)) {
+                    ipAddress = forwardedFor[0];
+                } else {
+                    ipAddress = forwardedFor.split(',')[0].trim();
+                }
+            } else if (req.ip) {
+                ipAddress = req.ip;
+            } else if (req.connection && req.connection.remoteAddress) {
+                ipAddress = req.connection.remoteAddress;
+            }
+            
+            await db.login_logs.create({
+                user_id: user.id,
+                login_method: 'local',
+                ip_address: ipAddress
+            });
+        } catch (logError) {
+            // ログインログの作成に失敗してもログインは成功させる
+            console.error('Login log creation error:', logError);
+        }
+
+        // 5. JWTトークンの発行
         const token = jwtHelper.createToken({
             id: user.id,
             email: user.email,
             role: user.role || DEFAULT_ROLE,
         });
 
-        // 5. レスポンスを返す
+        // 6. レスポンスを返す
         res.json({ 
             token,
             user: {

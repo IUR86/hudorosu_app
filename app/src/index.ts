@@ -7,6 +7,9 @@ import adminRoutes from "./routes/admin";
 const app: Application = express();
 const PORT: number = 3000;
 
+// Trust proxy（リバースプロキシ経由の場合にIPアドレスを正しく取得するため）
+app.set('trust proxy', true);
+
 // CORS設定
 app.use(cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
