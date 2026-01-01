@@ -6,10 +6,11 @@
         "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
         "dev:backend": "cd app && npm run dev",
         "dev:frontend": "cd frontend && npm run dev",
+        "dev:mobile": "cd mobile && npm start",
         "build": "npm run build:backend && npm run build:frontend",
         "build:backend": "cd app && npm run build",
         "build:frontend": "cd frontend && npm run build",
-        "install:all": "npm install && cd app && npm install && cd ../frontend && npm install"
+        "install:all": "npm install && cd app && npm install && cd ../frontend && npm install && cd ../mobile && npm install"
     },
     "devDependencies": {
         "concurrently": "^8.2.2"

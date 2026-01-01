@@ -1,6 +1,6 @@
 # Hudorosu Backend
 
-Express + TypeScript バックエンドと Vite + React フロントエンドの統合プロジェクト
+Express + TypeScript バックエンド、Vite + React フロントエンド、React Native + Expo Go モバイルアプリの統合プロジェクト
 
 ## プロジェクト構成
 
@@ -8,6 +8,7 @@ Express + TypeScript バックエンドと Vite + React フロントエンドの
 hudorosu_backend/
 ├── app/              # バックエンド (Express + TypeScript)
 ├── frontend/         # フロントエンド (Vite + React + TypeScript)
+├── mobile/           # モバイルアプリ (React Native + Expo Go)
 ├── docker/           # Docker設定ファイル
 └── docker-compose.yml
 ```
@@ -29,6 +30,9 @@ cd app && npm install
 
 # フロントエンド
 cd frontend && npm install
+
+# モバイルアプリ
+cd mobile && npm install
 ```
 
 ### 2. 開発サーバーの起動
@@ -50,6 +54,9 @@ npm run dev:backend
 
 # フロントエンド（ターミナル2）
 npm run dev:frontend
+
+# モバイルアプリ（ターミナル3）
+npm run dev:mobile
 ```
 
 ### 3. Docker Composeを使用
@@ -90,6 +97,13 @@ npm run build
 - Vite 5
 - CSS Modules
 
+### モバイルアプリ
+- React Native
+- Expo Go
+- TypeScript
+- React Navigation
+- AsyncStorage
+
 ## 開発
 
 ### バックエンドの追加ルート
@@ -99,4 +113,8 @@ npm run build
 ### フロントエンドのコンポーネント
 
 `frontend/src/` にReactコンポーネントを追加してください。
+
+### モバイルアプリの開発
+
+`mobile/src/screens/` に新しい画面を追加してください。詳細は `mobile/README.md` を参照してください。
 

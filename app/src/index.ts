@@ -11,8 +11,23 @@ const PORT: number = 3000;
 app.set('trust proxy', true);
 
 // CORS設定
+const allowedOrigins = process.env.FRONTEND_URL 
+    ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+    : [
+        "http://localhost:5173",  // フロントエンド（Vite）
+        "http://localhost:8081",  // モバイルアプリ（Expo）
+        "http://127.0.0.1:8081",  // モバイルアプリ（Expo - 別形式）
+      ];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+        // オリジンが未定義の場合（例: モバイルアプリ、Postmanなど）も許可
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy: Origin not allowed'));
+        }
+    },
     credentials: true
 }));
 
