@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -6,129 +6,208 @@ import {
     StyleSheet,
     ScrollView,
     Dimensions,
+    ActivityIndicator,
+    Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FoodItem, getProgress, getStatusColor, getStatusText } from '../types/food';
+import AddFoodScreen from './AddFoodScreen';
+import { fetchStocks, Stock } from '../services/stockService';
 
 const { width } = Dimensions.get('window');
 
 interface StockScreenProps {
-    items: FoodItem[];
+    items?: FoodItem[];
 }
 
-export default function StockScreen({ items }: StockScreenProps) {
-    const [storageType, setStorageType] = useState<'refrigerator' | 'freezer' | 'pantry'>('refrigerator');
+// アイコンマッピング（簡易版）
+const getFoodIcon = (name: string): string => {
+    const iconMap: { [key: string]: string } = {
+        'ほうれん草': '🥬',
+        '卵': '🥚',
+        '鶏もも肉': '🍗',
+        '牛乳': '🥛',
+        '冷凍うどん': '🍜',
+        '豚ひき肉': '🥓',
+        '玉ねぎ': '🧅',
+        'パスタ': '🍝',
+    };
+    return iconMap[name] || '🥘';
+};
 
+// StockをFoodItemに変換
+const convertStockToFoodItem = (stock: Stock): FoodItem => {
+    const expiryDate = new Date(stock.expiry_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    expiryDate.setHours(0, 0, 0, 0);
+    
+    const daysLeft = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    let status: 'expired' | 'critical' | 'warning' | 'safe';
+    if (daysLeft < 0) {
+        status = 'expired';
+    } else if (daysLeft <= 1) {
+        status = 'critical';
+    } else if (daysLeft <= 3) {
+        status = 'warning';
+    } else {
+        status = 'safe';
+    }
+    
+    // 総日数は30日として計算（実際には食材ごとに異なる可能性がある）
+    const totalDays = 30;
+    
+    return {
+        id: stock.id,
+        name: stock.food?.name || '不明な食材',
+        category: stock.food?.category?.name || 'その他',
+        daysLeft: daysLeft,
+        totalDays: totalDays,
+        quantity: stock.quantity || '1個',
+        status: status,
+        location: stock.storage_type,
+        icon: getFoodIcon(stock.food?.name || ''),
+    };
+};
+
+export default function StockScreen({ items: propItems }: StockScreenProps) {
+    const [storageType, setStorageType] = useState<'refrigerator' | 'freezer' | 'pantry'>('refrigerator');
+    const [showAddFood, setShowAddFood] = useState(false);
+    const [stocks, setStocks] = useState<Stock[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadStocks();
+    }, [storageType]);
+
+    const loadStocks = async () => {
+        setLoading(true);
+        try {
+            const data = await fetchStocks(storageType);
+            setStocks(data);
+        } catch (error: any) {
+            console.error('Error loading stocks:', error);
+            Alert.alert('エラー', '在庫の読み込みに失敗しました');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFoodAdded = () => {
+        loadStocks();
+    };
+
+    const items: FoodItem[] = propItems || stocks.map(convertStockToFoodItem);
     const filteredItems = items.filter(item => item.location === storageType);
 
     return (
         <>
-        <View style={styles.storageTypeContainer}>
-            <View style={styles.storageTypeButtons}>
-            {[
-                { id: 'refrigerator' as const, label: '冷蔵', icon: 'thermometer-outline' },
-                { id: 'freezer' as const, label: '冷凍', icon: 'snow-outline' },
-                { id: 'pantry' as const, label: '常温', icon: 'cube-outline' },
-            ].map((type) => (
-                <TouchableOpacity
-                key={type.id}
-                onPress={() => setStorageType(type.id)}
-                style={[
-                    styles.storageTypeButton,
-                    storageType === type.id && styles.storageTypeButtonActive,
-                ]}
-                >
-                <Ionicons
-                    name={type.icon as any}
-                    size={14}
-                    color={storageType === type.id ? '#6B8E6B' : '#8E9A8E'}
-                />
-                <Text
-                    style={[
-                    styles.storageTypeButtonText,
-                    storageType === type.id && styles.storageTypeButtonTextActive,
-                    ]}
-                >
-                    {type.label}
-                </Text>
-                </TouchableOpacity>
-            ))}
-            </View>
-        </View>
-
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-            <View style={styles.aiSuggestionCard}>
-            <View style={styles.aiSuggestionContent}>
-                <View style={styles.aiSuggestionHeader}>
-                <Ionicons name="star" size={16} color="#fbbf24" />
-                <Text style={styles.aiSuggestionLabel}>AI Suggestion</Text>
-                </View>
-                <Text style={styles.aiSuggestionText}>
-                期限の近い「ほうれん草」で{'\n'}お浸しはいかがですか？
-                </Text>
-                <TouchableOpacity style={styles.aiSuggestionButton}>
-                <Text style={styles.aiSuggestionButtonText}>レシピを見る</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.aiSuggestionIcon}>
-                <Ionicons name="restaurant-outline" size={100} color="#ffffff" />
-            </View>
-            </View>
-
-            <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-                {storageType === 'refrigerator'
-                ? '冷蔵庫のなか'
-                : storageType === 'freezer'
-                ? '冷凍庫のなか'
-                : 'ストック'}
-            </Text>
-            <View style={styles.itemCountBadge}>
-                <Text style={styles.itemCountText}>{filteredItems.length} ITEMS</Text>
-            </View>
-            </View>
-
-            <View style={styles.itemsGrid}>
-            {filteredItems.map((item) => (
-                <TouchableOpacity
-                key={item.id}
-                style={styles.itemCard}
-                activeOpacity={0.7}
-                >
-                <Text style={styles.itemIcon}>{item.icon}</Text>
-                <View style={styles.itemContent}>
-                    <Text style={styles.itemName} numberOfLines={1}>
-                    {item.name}
-                    </Text>
-                    <Text style={styles.itemQuantity}>{item.quantity}</Text>
-                    <View style={styles.progressBarContainer}>
-                    <View
+            <View style={styles.storageTypeContainer}>
+                <View style={styles.storageTypeButtons}>
+                {[
+                    { id: 'refrigerator' as const, label: '冷蔵', icon: 'thermometer-outline' },
+                    { id: 'freezer' as const, label: '冷凍', icon: 'snow-outline' },
+                    { id: 'pantry' as const, label: '常温', icon: 'cube-outline' },
+                ].map((type) => (
+                    <TouchableOpacity
+                        key={type.id}
+                        onPress={() => setStorageType(type.id)}
                         style={[
-                        styles.progressBar,
-                        { width: `${getProgress(item)}%`, backgroundColor: getStatusColor(item.status) },
+                            styles.storageTypeButton,
+                            storageType === type.id && styles.storageTypeButtonActive,
                         ]}
-                    />
-                    </View>
-                    <Text
-                    style={[
-                        styles.itemStatus,
-                        { color: getStatusColor(item.status) },
-                    ]}
                     >
-                    {getStatusText(item)}
+                    <Ionicons
+                        name={type.icon as any}
+                        size={14}
+                        color={storageType === type.id ? '#6B8E6B' : '#8E9A8E'}
+                    />
+                    <Text
+                        style={[
+                            styles.storageTypeButtonText,
+                            storageType === type.id && styles.storageTypeButtonTextActive,
+                        ]}
+                    >
+                        {type.label}
                     </Text>
+                    </TouchableOpacity>
+                ))}
                 </View>
-                </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-                style={styles.addItemCard}
-                activeOpacity={0.7}
-            >
-                <Ionicons name="add" size={32} color="#d1d5db" />
-                <Text style={styles.addItemText}>追加する</Text>
-            </TouchableOpacity>
             </View>
-        </ScrollView>
+
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+                <View style={styles.aiSuggestionCard}>
+                    <View style={styles.aiSuggestionContent}>
+                        <View style={styles.aiSuggestionHeader}>
+                            <Ionicons name="star" size={16} color="#fbbf24" />
+                            <Text style={styles.aiSuggestionLabel}>AI Suggestion</Text>
+                        </View>
+                        <Text style={styles.aiSuggestionText}>
+                            期限の近い「ほうれん草」で{'\n'}お浸しはいかがですか？
+                        </Text>
+                        <TouchableOpacity style={styles.aiSuggestionButton}>
+                            <Text style={styles.aiSuggestionButtonText}>レシピを見る</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.aiSuggestionIcon}>
+                        <Ionicons name="restaurant-outline" size={100} color="#ffffff" />
+                    </View>
+                </View>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>
+                        {storageType === 'refrigerator' ? '冷蔵庫のなか' : storageType === 'freezer' ? '冷凍庫のなか' : 'ストック'}
+                    </Text>
+                    <View style={styles.itemCountBadge}>
+                        <Text style={styles.itemCountText}>{filteredItems.length} ITEMS</Text>
+                    </View>
+                </View>
+
+                <View style={styles.itemsGrid}>
+                    {filteredItems.map((item) => (
+                        <TouchableOpacity key={item.id} style={styles.itemCard} activeOpacity={0.7}>
+                            <Text style={styles.itemIcon}>{item.icon}</Text>
+                            <View style={styles.itemContent}>
+                                <Text style={styles.itemName} numberOfLines={1}>
+                                    {item.name}
+                                </Text>
+                                <Text style={styles.itemQuantity}>{item.quantity}</Text>
+                                <View style={styles.progressBarContainer}>
+                                    <View
+                                        style={[
+                                            styles.progressBar,
+                                            { width: `${getProgress(item)}%`, backgroundColor: getStatusColor(item.status) },
+                                        ]}
+                                    />
+                                </View>
+                                <Text style={[styles.itemStatus, { color: getStatusColor(item.status) }]}>
+                                    {getStatusText(item)}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    ))}
+                <TouchableOpacity
+                    style={styles.addItemCard}
+                    activeOpacity={0.7}
+                    onPress={() => setShowAddFood(true)}
+                >
+                    <Ionicons name="add" size={32} color="#d1d5db" />
+                    <Text style={styles.addItemText}>追加する</Text>
+                </TouchableOpacity>
+                </View>
+            </ScrollView>
+
+            {loading && (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#6B8E6B" />
+                </View>
+            )}
+
+            <AddFoodScreen
+                visible={showAddFood}
+                onClose={() => setShowAddFood(false)}
+                onFoodAdded={handleFoodAdded}
+            />
         </>
     );
 }
@@ -325,5 +404,16 @@ const styles = StyleSheet.create({
         marginTop: 4,
         fontWeight: 'bold',
         color: '#d1d5db',
+    },
+    loadingContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        zIndex: 1000,
     },
 });

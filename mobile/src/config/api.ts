@@ -36,7 +36,6 @@ const apiClient = axios.create({
     timeout: 10000,
 });
 
-// リクエストインターセプター: トークンを自動的に追加
 apiClient.interceptors.request.use(
     async (config) => {
         try {
@@ -54,12 +53,10 @@ apiClient.interceptors.request.use(
     }
 );
 
-// レスポンスインターセプター: 401エラーを処理
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
         if (error.response?.status === 401) {
-            // 認証エラーの場合、トークンを削除
             try {
                 await AsyncStorage.removeItem('token');
                 await AsyncStorage.removeItem('user');

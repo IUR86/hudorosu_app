@@ -12,18 +12,6 @@ import StockScreen from './StockScreen';
 import RecipeScreen from './RecipeScreen';
 import PlanScreen from './PlanScreen';
 import MenuScreen from './MenuScreen';
-import { FoodItem } from '../types/food';
-
-const allItems: FoodItem[] = [
-    { id: 1, name: 'ほうれん草', category: '野菜', daysLeft: 1, totalDays: 5, quantity: '1束', status: 'critical', location: 'refrigerator', icon: '🥬' },
-    { id: 2, name: '卵', category: '乳製品', daysLeft: 3, totalDays: 14, quantity: '6個', status: 'warning', location: 'refrigerator', icon: '🥚' },
-    { id: 3, name: '鶏もも肉', category: '肉類', daysLeft: 0, totalDays: 3, quantity: '300g', status: 'expired', location: 'refrigerator', icon: '🍗' },
-    { id: 4, name: '牛乳', category: '飲み物', daysLeft: 5, totalDays: 7, quantity: '500ml', status: 'safe', location: 'refrigerator', icon: '🥛' },
-    { id: 5, name: '冷凍うどん', category: '麺類', daysLeft: 30, totalDays: 60, quantity: '5食', status: 'safe', location: 'freezer', icon: '🍜' },
-    { id: 6, name: '豚ひき肉', category: '肉類', daysLeft: 14, totalDays: 20, quantity: '200g', status: 'safe', location: 'freezer', icon: '🥓' },
-    { id: 7, name: '玉ねぎ', category: '野菜', daysLeft: 10, totalDays: 20, quantity: '3個', status: 'safe', location: 'pantry', icon: '🧅' },
-    { id: 8, name: 'パスタ', category: '乾物', daysLeft: 120, totalDays: 365, quantity: '1袋', status: 'safe', location: 'pantry', icon: '🍝' },
-];
 
 export default function HomeScreen() {
     const [activeTab, setActiveTab] = useState('stock');
@@ -42,127 +30,127 @@ export default function HomeScreen() {
 
             {/* メインコンテンツ */}
             <View style={styles.mainContent}>
-                {activeTab === 'stock' && <StockScreen items={allItems} />}
+                {activeTab === 'stock' && <StockScreen />}
                 {activeTab === 'recipe' && <RecipeScreen />}
                 {activeTab === 'calendar' && <PlanScreen />}
                 {activeTab === 'settings' && <MenuScreen />}
             </View>
 
-        {/* タブバー */}
-        <View style={styles.tabBar}>
-            <TouchableOpacity
-            onPress={() => setActiveTab('stock')}
-            style={styles.tabButton}
-            activeOpacity={0.7}
-            >
-            <View
-                style={[
-                styles.tabIconContainer,
-                activeTab === 'stock' && styles.tabIconContainerActive,
-                ]}
-            >
-                <Ionicons
-                name="grid"
-                size={22}
-                color={activeTab === 'stock' ? '#6B8E6B' : '#d1d5db'}
-                />
-            </View>
-            <Text
-                style={[
-                styles.tabLabel,
-                activeTab === 'stock' && styles.tabLabelActive,
-                ]}
-            >
-                Stock
-            </Text>
-            </TouchableOpacity>
+            {/* タブバー */}
+            <View style={styles.tabBar}>
+                <TouchableOpacity
+                    onPress={() => setActiveTab('stock')}
+                    style={styles.tabButton}
+                    activeOpacity={0.7}
+                >
+                    <View
+                        style={[
+                            styles.tabIconContainer,
+                            activeTab === 'stock' && styles.tabIconContainerActive,
+                        ]}
+                    >
+                        <Ionicons
+                            name="grid"
+                            size={22}
+                            color={activeTab === 'stock' ? '#6B8E6B' : '#d1d5db'}
+                        />
+                    </View>
+                    <Text
+                        style={[
+                            styles.tabLabel,
+                            activeTab === 'stock' && styles.tabLabelActive,
+                        ]}
+                    >
+                        Stock
+                    </Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-            onPress={() => setActiveTab('recipe')}
-            style={styles.tabButton}
-            activeOpacity={0.7}
-            >
-            <View
-                style={[
-                styles.tabIconContainer,
-                activeTab === 'recipe' && styles.tabIconContainerActive,
-                ]}
-            >
-                <Ionicons
-                name="star"
-                size={22}
-                color={activeTab === 'recipe' ? '#6B8E6B' : '#d1d5db'}
-                />
-            </View>
-            <Text
-                style={[
-                styles.tabLabel,
-                activeTab === 'recipe' && styles.tabLabelActive,
-                ]}
-            >
-                Recipe
-            </Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                onPress={() => setActiveTab('recipe')}
+                style={styles.tabButton}
+                activeOpacity={0.7}
+                >
+                <View
+                    style={[
+                        styles.tabIconContainer,
+                        activeTab === 'recipe' && styles.tabIconContainerActive,
+                    ]}
+                >
+                    <Ionicons
+                        name="star"
+                        size={22}
+                        color={activeTab === 'recipe' ? '#6B8E6B' : '#d1d5db'}
+                    />
+                </View>
+                <Text
+                    style={[
+                        styles.tabLabel,
+                        activeTab === 'recipe' && styles.tabLabelActive,
+                    ]}
+                >
+                    Recipe
+                </Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-            onPress={() => setActiveTab('calendar')}
-            style={styles.tabButton}
-            activeOpacity={0.7}
-            >
-            <View
-                style={[
-                styles.tabIconContainer,
-                activeTab === 'calendar' && styles.tabIconContainerActive,
-                ]}
-            >
-                <Ionicons
-                name="calendar"
-                size={22}
-                color={activeTab === 'calendar' ? '#6B8E6B' : '#d1d5db'}
-                />
-            </View>
-            <Text
-                style={[
-                styles.tabLabel,
-                activeTab === 'calendar' && styles.tabLabelActive,
-                ]}
-            >
-                Plan
-            </Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => setActiveTab('calendar')}
+                    style={styles.tabButton}
+                    activeOpacity={0.7}
+                >
+                    <View
+                        style={[
+                            styles.tabIconContainer,
+                            activeTab === 'calendar' && styles.tabIconContainerActive,
+                        ]}
+                    >
+                        <Ionicons
+                            name="calendar"
+                            size={22}
+                            color={activeTab === 'calendar' ? '#6B8E6B' : '#d1d5db'}
+                        />
+                    </View>
+                    <Text
+                        style={[
+                            styles.tabLabel,
+                            activeTab === 'calendar' && styles.tabLabelActive,
+                        ]}
+                    >
+                        Plan
+                    </Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-            onPress={() => setActiveTab('settings')}
-            style={styles.tabButton}
-            activeOpacity={0.7}
-            >
-            <View
-                style={[
-                styles.tabIconContainer,
-                activeTab === 'settings' && styles.tabIconContainerActive,
-                ]}
-            >
-                <Ionicons
-                name="settings"
-                size={22}
-                color={activeTab === 'settings' ? '#6B8E6B' : '#d1d5db'}
-                />
+                <TouchableOpacity
+                    onPress={() => setActiveTab('settings')}
+                    style={styles.tabButton}
+                    activeOpacity={0.7}
+                >
+                    <View
+                        style={[
+                            styles.tabIconContainer,
+                            activeTab === 'settings' && styles.tabIconContainerActive,
+                        ]}
+                    >
+                        <Ionicons
+                            name="settings"
+                            size={22}
+                            color={activeTab === 'settings' ? '#6B8E6B' : '#d1d5db'}
+                        />
+                    </View>
+                    <Text
+                        style={[
+                            styles.tabLabel,
+                            activeTab === 'settings' && styles.tabLabelActive,
+                        ]}
+                    >
+                        Menu
+                    </Text>
+                </TouchableOpacity>
             </View>
-            <Text
-                style={[
-                styles.tabLabel,
-                activeTab === 'settings' && styles.tabLabelActive,
-                ]}
-            >
-                Menu
-            </Text>
-            </TouchableOpacity>
-        </View>
 
-        {/* ホームインジケーター（iOS用） */}
-        {Platform.OS === 'ios' && (
-            <View style={styles.homeIndicator} />
-        )}
+            {/* ホームインジケーター（iOS用） */}
+            {Platform.OS === 'ios' && (
+                <View style={styles.homeIndicator} />
+            )}
         </View>
     );
 }
