@@ -12,6 +12,7 @@ var _recipes = require("./recipes");
 var _settings = require("./settings");
 var _stocks = require("./stocks");
 var _users = require("./users");
+var _faqs = require("./faqs");
 
 function initModels(sequelize) {
   var SequelizeMeta = _SequelizeMeta(sequelize, DataTypes);
@@ -27,6 +28,7 @@ function initModels(sequelize) {
   var settings = _settings(sequelize, DataTypes);
   var stocks = _stocks(sequelize, DataTypes);
   var users = _users(sequelize, DataTypes);
+  var faqs = _faqs(sequelize, DataTypes);
 
   allergens.belongsToMany(foods, { as: 'food_id_foods', through: food_allergens, foreignKey: "allergen_id", otherKey: "food_id" });
   foods.belongsToMany(allergens, { as: 'allergen_id_allergens', through: food_allergens, foreignKey: "food_id", otherKey: "allergen_id" });
@@ -67,6 +69,7 @@ function initModels(sequelize) {
     settings,
     stocks,
     users,
+    faqs,
   };
 }
 module.exports = initModels;

@@ -1,11 +1,3 @@
-// ロール定数
-export const ROLE = {
-    ADMIN: 'admin',
-    USER: 'user',
-} as const;
-
-export type Role = typeof ROLE[keyof typeof ROLE];
-
-// デフォルトロール
-export const DEFAULT_ROLE = ROLE.USER;
+// 共通のロール定数を再エクスポート
+export { ROLE, type Role, DEFAULT_ROLE } from '@shared/constants/role';
 

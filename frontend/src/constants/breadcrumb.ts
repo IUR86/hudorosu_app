@@ -57,6 +57,19 @@ export const BREADCRUMB_ITEMS: Record<string, BreadcrumbItem[]> = {
         { label: 'アレルゲン編集' }
     ],
 
+    // FAQ関連
+    '/admin/faq': [
+        { label: 'FAQ管理' }
+    ],
+    '/admin/faq/create': [
+        { label: 'FAQ管理', path: '/admin/faq' },
+        { label: '新規FAQ作成' }
+    ],
+    '/admin/faq/:id/edit': [
+        { label: 'FAQ管理', path: '/admin/faq' },
+        { label: 'FAQ編集' }
+    ],
+
     // ユーザー関連
     '/admin/user': [
         { label: 'ユーザー管理' }

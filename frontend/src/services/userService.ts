@@ -1,5 +1,25 @@
 import apiClient from '@/utils/axiosConfig';
 import { User, UserResponse } from '@/types/user';
+import { buildImageUrl } from '@shared/utils/imagePath';
+
+/**
+ * 画像をアップロードする
+ * @param file アップロードする画像ファイル
+ * @returns アップロードされた画像のURL
+ */
+export const uploadAvatar = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    const response = await apiClient.post<{ url: string; filename: string; message: string }>('/admin/upload/avatar', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    const baseUrl = apiClient.defaults.baseURL || '';
+    return buildImageUrl(response.data.url, baseUrl);
+};
 
 /**
  * ユーザー一覧を取得する
@@ -36,6 +56,7 @@ export const updateUser = async (id: number, data: {
     name?: string;
     role?: string;
     password?: string;
+    avatar_url?: string | null;
 }): Promise<User> => {
     const response = await apiClient.put<UserResponse>(`/admin/users/${id}`, data);
     return response.data;
@@ -48,4 +69,3 @@ export const updateUser = async (id: number, data: {
 export const deleteUser = async (id: number): Promise<void> => {
     await apiClient.delete(`/admin/users/${id}`);
 };
-

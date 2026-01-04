@@ -108,7 +108,7 @@ export const createUserController = async (req: AuthRequest, res: Response) => {
 export const updateUserController = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const { email, name, role, password } = req.body;
+        const { email, name, role, password, avatar_url } = req.body;
 
         // バリデーション
         if (!id) {
@@ -172,6 +172,7 @@ export const updateUserController = async (req: AuthRequest, res: Response) => {
             if (email !== undefined) updateData.email = email;
             if (name !== undefined) updateData.name = name;
             if (role !== undefined) updateData.role = role;
+            if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
 
             await user.update(updateData, { transaction });
 

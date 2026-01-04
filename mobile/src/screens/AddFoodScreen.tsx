@@ -229,20 +229,23 @@ export default function AddFoodScreen({ visible, onClose, onFoodAdded, onNavigat
             });
 
             console.log('Stock added successfully');
-            Alert.alert('成功', '食材を在庫に追加しました', [
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        if (onFoodAdded) {
-                            onFoodAdded();
-                        }
-                        if (onNavigateToStock) {
-                            onNavigateToStock();
-                        }
-                        onClose();
-                    },
-                },
-            ]);
+            
+            // コールバックを呼び出して一覧を再描画
+            if (onFoodAdded) {
+                onFoodAdded();
+            }
+            
+            // 追加画面を閉じる
+            onClose();
+            
+            // フォームをリセット
+            setSelectedFood(null);
+            setStockFormData({
+                date_type: 'expiry',
+                expiry_date: '',
+                storage_type: 'refrigerator',
+                quantity: '',
+            });
         } catch (error: any) {
             console.error('Error adding food to stock:', error);
             const errorMessage = error.response?.data?.error || error.message || '食材の追加に失敗しました';
@@ -300,20 +303,26 @@ export default function AddFoodScreen({ visible, onClose, onFoodAdded, onNavigat
             });
 
             console.log('Stock added successfully');
-            Alert.alert('成功', '食材を在庫に追加しました', [
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        if (onFoodAdded) {
-                            onFoodAdded();
-                        }
-                        if (onNavigateToStock) {
-                            onNavigateToStock();
-                        }
-                        onClose();
-                    },
-                },
-            ]);
+            
+            // コールバックを呼び出して一覧を再描画
+            if (onFoodAdded) {
+                onFoodAdded();
+            }
+            
+            // 追加画面を閉じる
+            onClose();
+            
+            // フォームをリセット
+            setFormData({
+                name: '',
+                category_id: 0,
+                best_before_date: '',
+                expiry_date: '',
+                memo: '',
+                storage_type: 'refrigerator',
+                quantity: '',
+                date_type: 'expiry',
+            });
         } catch (error: any) {
             console.error('Error creating food:', error);
             const errorMessage = error.response?.data?.error || error.message || '食材の作成に失敗しました';

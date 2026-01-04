@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FoodItem, getProgress, getStatusColor, getStatusText } from '../types/food';
 import AddFoodScreen from './AddFoodScreen';
 import { fetchStocks, Stock } from '../services/stockService';
+import FlashMessage from '../components/FlashMessage';
 
 const { width } = Dimensions.get('window');
 
@@ -76,6 +77,7 @@ export default function StockScreen({ items: propItems, onNavigateToStock }: Sto
     const [showAddFood, setShowAddFood] = useState(false);
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(true);
+    const [flashMessage, setFlashMessage] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
     useEffect(() => {
         loadStocks();
@@ -95,7 +97,13 @@ export default function StockScreen({ items: propItems, onNavigateToStock }: Sto
     };
 
     const handleFoodAdded = () => {
+        // APIを再リクエストして一覧を再描画
         loadStocks();
+        // フラッシュメッセージを表示
+        setFlashMessage({
+            message: '在庫を追加しました',
+            type: 'success',
+        });
     };
 
     const items: FoodItem[] = propItems || stocks.map(convertStockToFoodItem);
@@ -186,6 +194,16 @@ export default function StockScreen({ items: propItems, onNavigateToStock }: Sto
                 onFoodAdded={handleFoodAdded}
                 onNavigateToStock={onNavigateToStock}
             />
+
+            {/* フラッシュメッセージ */}
+            {flashMessage && (
+                <FlashMessage
+                    message={flashMessage.message}
+                    type={flashMessage.type}
+                    visible={true}
+                    onHide={() => setFlashMessage(null)}
+                />
+            )}
         </>
     );
 }

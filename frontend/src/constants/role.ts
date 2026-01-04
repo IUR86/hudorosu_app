@@ -1,24 +1,22 @@
-// ロール定数
-export const ROLE = {
-    ADMIN: 'admin',
-    USER: 'user',
-} as const;
+// 共通のロール定数をインポート
+import { ROLE, type Role, DEFAULT_ROLE } from '@shared/constants/role';
 
-export type Role = typeof ROLE[keyof typeof ROLE];
+// 共通のロール定数を再エクスポート
+export { ROLE, type Role, DEFAULT_ROLE };
 
-// ロールの表示名
+// ロールの表示名（フロントエンド専用）
 export const ROLE_LABELS: Record<Role, string> = {
     [ROLE.ADMIN]: '管理者',
     [ROLE.USER]: '一般ユーザー',
 };
 
-// ロールのバッジカラー
+// ロールのバッジカラー（フロントエンド専用）
 export const ROLE_BADGE_COLORS: Record<Role, string> = {
     [ROLE.ADMIN]: 'bg-red-100 text-red-800 border-red-200',
     [ROLE.USER]: 'bg-blue-100 text-blue-800 border-blue-200',
 };
 
-// 権限一覧
+// 権限一覧（フロントエンド専用）
 export interface Permission {
     id: string;
     name: string;

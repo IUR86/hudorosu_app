@@ -5,9 +5,10 @@ import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { AdminBreadcrumb } from '@/components/admin/layout/AdminBreadcrumb';
 import { BREADCRUMB_ITEMS } from '@/constants/breadcrumb';
 import { FlashMessage } from '@/components/common/FlashMessage';
-import { updateUser, fetchUsers } from '@/services/userService';
+import { updateUser, fetchUsers, uploadAvatar } from '@/services/userService';
 import { ROLE, ROLE_LABELS } from '@/constants/role';
 import { User } from '@/types/user';
+import { DEFAULT_USER_AVATAR_URL } from '@/constants/user';
 
 export const UserEditPage: React.FC = () => {
     const navigate = useNavigate();
@@ -24,6 +25,8 @@ export const UserEditPage: React.FC = () => {
         name: '',
         role: ROLE.USER,
     });
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -53,6 +56,8 @@ export const UserEditPage: React.FC = () => {
                     name: foundUser.name || '',
                     role: (foundUser.role as typeof ROLE.USER | typeof ROLE.ADMIN) || ROLE.USER,
                 });
+                setAvatarPreview(foundUser.avatar_url || null);
+                setAvatarFile(null);
             } catch (err: any) {
                 console.error('ユーザー取得エラー:', err);
                 setError(err.response?.data?.error || 'ユーザー情報の取得に失敗しました');
@@ -104,15 +109,37 @@ export const UserEditPage: React.FC = () => {
         }
 
         try {
+            let avatarUrl: string | null | undefined = user?.avatar_url;
+
+            // 新しい画像が選択されている場合
+            if (avatarFile) {
+                // ファイルをアップロードしてURLを取得
+                avatarUrl = await uploadAvatar(avatarFile);
+            } else if (avatarPreview === null && user?.avatar_url) {
+                // 画像が削除された場合（既存の画像があったが、プレビューがnullになった）
+                avatarUrl = null;
+            } else if (avatarPreview && !avatarFile) {
+                // 既存の画像をそのまま使用（変更なし）
+                // avatarPreviewがURLの場合はそのまま、base64の場合は既存のURLを使用
+                if (avatarPreview.startsWith('http://') || avatarPreview.startsWith('https://') || avatarPreview.startsWith('/api/')) {
+                    avatarUrl = avatarPreview;
+                } else {
+                    // base64の場合は既存のURLを維持
+                    avatarUrl = user?.avatar_url;
+                }
+            }
+
             const updateData: {
                 email?: string;
                 name?: string;
                 role?: string;
                 password?: string;
+                avatar_url?: string | null;
             } = {
                 email: formData.email,
                 name: formData.name || undefined,
                 role: formData.role || undefined,
+                avatar_url: avatarUrl,
             };
 
             // パスワードが入力されている場合のみ更新
@@ -130,6 +157,36 @@ export const UserEditPage: React.FC = () => {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // ファイルサイズチェック（5MB以下）
+            if (file.size > 5 * 1024 * 1024) {
+                setError('画像ファイルのサイズは5MB以下である必要があります');
+                return;
+            }
+
+            // ファイルタイプチェック
+            if (!file.type.startsWith('image/')) {
+                setError('画像ファイルを選択してください');
+                return;
+            }
+
+            setAvatarFile(file);
+            // プレビュー用にローカルで読み込む
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAvatarRemove = () => {
+        setAvatarFile(null);
+        setAvatarPreview(null);
     };
 
     const handleCancel = () => {
@@ -183,6 +240,58 @@ export const UserEditPage: React.FC = () => {
                         </div>
                         <div className="p-6">
                             <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* プロフィール画像 */}
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">
+                                        プロフィール画像
+                                    </label>
+                                    <div className="flex items-center gap-6">
+                                        <div className="relative">
+                                            {avatarPreview ? (
+                                                <img
+                                                    src={avatarPreview}
+                                                    alt="プロフィール画像"
+                                                    className="w-24 h-24 rounded-full object-cover border-2 border-slate-200"
+                                                />
+                                            ) : (
+                                                <img
+                                                    src={DEFAULT_USER_AVATAR_URL}
+                                                    alt="デフォルト画像"
+                                                    className="w-24 h-24 rounded-full object-cover border-2 border-slate-200"
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <label className="cursor-pointer">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleAvatarChange}
+                                                    className="hidden"
+                                                    disabled={isSubmitting}
+                                                />
+                                                <span className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors font-bold text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <i className="fas fa-camera"></i>
+                                                    画像を選択
+                                                </span>
+                                            </label>
+                                            {avatarPreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAvatarRemove}
+                                                    disabled={isSubmitting}
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <i className="fas fa-trash"></i>
+                                                    削除
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-2">
+                                        対応形式: JPG, PNG, GIF（最大5MB）
+                                    </p>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-2">
                                         メールアドレス <span className="text-red-500">*</span>

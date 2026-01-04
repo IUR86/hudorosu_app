@@ -19,6 +19,9 @@ import { SettingsIndexPage } from './pages/admin/settings/SettingsIndex';
 import { RecipeIndexPage } from './pages/admin/recipe/RecipeIndex';
 import { RecipeCreatePage } from './pages/admin/recipe/RecipeCreate';
 import { RecipeEditPage } from './pages/admin/recipe/RecipeEdit';
+import { FaqIndexPage } from './pages/admin/faq/FaqIndex';
+import { FaqCreatePage } from './pages/admin/faq/FaqCreate';
+import { FaqEditPage } from './pages/admin/faq/FaqEdit';
 import { NotFoundPage } from './pages/admin/error/NotFound';
 import { AuthLoginPage } from './pages/admin/auth/AuthLogin';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -180,6 +183,30 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <RecipeEditPage />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin/faq" 
+                    element={
+                        <ProtectedRoute>
+                            <FaqIndexPage />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin/faq/create" 
+                    element={
+                        <ProtectedRoute>
+                            <FaqCreatePage />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin/faq/:id/edit" 
+                    element={
+                        <ProtectedRoute>
+                            <FaqEditPage />
                         </ProtectedRoute>
                     } 
                 />

@@ -1,5 +1,6 @@
 import express, { Application } from "express";
 import cors from "cors";
+import path from "path";
 import healthRoutes from "./routes/health";
 import userRoutes from "./routes/user";
 import adminRoutes from "./routes/admin";
@@ -34,6 +35,9 @@ app.use(cors({
 // JSONパーサー
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 静的ファイルの配信（public/uploads配下の画像を配信）
+app.use('/api/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // リクエストログミドルウェア（デバッグ用）
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {

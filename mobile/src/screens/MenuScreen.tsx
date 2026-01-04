@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { DEFAULT_USER_AVATAR_URL } from '../constants/user';
 
 export default function MenuScreen({
     onNavigateToProfileEdit,
@@ -27,15 +28,12 @@ export default function MenuScreen({
             <View style={styles.profileImageContainer}>
             <Image
                 source={{
-                uri: user?.avatar_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80',
+                uri: user?.avatar_url || DEFAULT_USER_AVATAR_URL,
                 }}
                 style={styles.profileImage}
             />
             </View>
-            <Text style={styles.profileName}>{user?.name || 'ユーザー'}</Text>
-            <Text style={styles.profileSubtitle}>
-            {user?.email || ''}
-            </Text>
+            <Text style={styles.profileName}>{user?.name}</Text>
         </View>
 
         <View style={styles.menuList}>
@@ -79,9 +77,6 @@ export default function MenuScreen({
                 <Ionicons name="notifications-outline" size={18} color="#6B8E6B" />
                 <Text style={styles.menuItemText}>通知設定</Text>
                 <View style={styles.menuItemRight}>
-                    <View style={styles.menuItemBadge}>
-                        <Text style={styles.menuItemBadgeText}>3</Text>
-                    </View>
                     <Ionicons name="chevron-forward" size={18} color="#e5e7eb" />
                 </View>
             </TouchableOpacity>

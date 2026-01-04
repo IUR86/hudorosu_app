@@ -4,6 +4,7 @@ import { getMasterFoodsController, getMasterFoodsByCategoryController, createUse
 import { categoriesController } from "../controllers/admin/categoriesController";
 import { getStocksController, getStockByIdController, createStockController, updateStockController, deleteStockController } from "../controllers/user/stocksController";
 import { getRecommendedRecipesController, getRecipesController, getRecipeByIdController } from "../controllers/user/recipesController";
+import { getFaqsController } from "../controllers/user/faqsController";
 
 const router = Router();
 
@@ -24,5 +25,8 @@ router.delete("/stocks/:id", authMiddleware, deleteStockController);
 router.get("/recipes/recommended", authMiddleware, getRecommendedRecipesController);
 router.get("/recipes", authMiddleware, getRecipesController);
 router.get("/recipes/:id", authMiddleware, getRecipeByIdController);
+
+// FAQルート
+router.get("/faqs", authMiddleware, getFaqsController);
 
 export default router;

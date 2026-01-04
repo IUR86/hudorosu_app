@@ -14,9 +14,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { updateUser, changePassword } from '../services/userService';
+import { updateUser, changePassword, uploadAvatar } from '../services/userService';
 import * as ImagePicker from 'expo-image-picker';
 import ScreenHeader from '../components/ScreenHeader';
+import { DEFAULT_USER_AVATAR_URL } from '../constants/user';
 
 type ActiveTab = 'profile' | 'password';
 
@@ -28,6 +29,7 @@ export default function ProfileEditScreen({ onBack }: { onBack: () => void }) {
     // プロフィール編集用の状態
     const [name, setName] = useState('');
     const [avatarUri, setAvatarUri] = useState<string | null>(null);
+    const [avatarFile, setAvatarFile] = useState<{ uri: string; type: string; name: string } | null>(null);
 
     // パスワード変更用の状態
     const [currentPassword, setCurrentPassword] = useState('');
@@ -46,6 +48,7 @@ export default function ProfileEditScreen({ onBack }: { onBack: () => void }) {
         if (user) {
             setName(user.name || '');
             setAvatarUri(user.avatar_url || null);
+            setAvatarFile(null);
         }
     }, [user]);
 
@@ -76,18 +79,18 @@ export default function ProfileEditScreen({ onBack }: { onBack: () => void }) {
                 allowsEditing: true,
                 aspect: [1, 1],
                 quality: 0.8,
-                base64: true,
             });
 
             if (!result.canceled && result.assets[0]) {
                 const asset = result.assets[0];
-                // base64データがある場合はそれを使用、ない場合はURIを使用
-                if (asset.base64) {
-                    const base64Image = `data:image/jpeg;base64,${asset.base64}`;
-                    setAvatarUri(base64Image);
-                } else {
-                    setAvatarUri(asset.uri);
-                }
+                // プレビュー用にURIを設定
+                setAvatarUri(asset.uri);
+                // ファイル情報を保存（アップロード時に使用）
+                setAvatarFile({
+                    uri: asset.uri,
+                    type: asset.type || 'image/jpeg',
+                    name: asset.fileName || `avatar-${Date.now()}.jpg`,
+                });
             }
         } catch (error) {
             console.error('Error picking image:', error);
@@ -105,7 +108,10 @@ export default function ProfileEditScreen({ onBack }: { onBack: () => void }) {
                 {
                     text: '削除',
                     style: 'destructive',
-                    onPress: () => setAvatarUri(null),
+                    onPress: () => {
+                        setAvatarUri(null);
+                        setAvatarFile(null);
+                    },
                 },
             ]
         );
@@ -155,13 +161,21 @@ export default function ProfileEditScreen({ onBack }: { onBack: () => void }) {
             let avatarUrl: string | undefined | null = user?.avatar_url;
             
             // 新しい画像が選択されている場合
-            if (avatarUri) {
-                // base64データ（data:image/...で始まる）の場合はそのまま使用
-                // 既存のURL（http://...で始まる）の場合もそのまま使用
-                avatarUrl = avatarUri;
+            if (avatarFile) {
+                // ファイルをアップロードしてURLを取得
+                avatarUrl = await uploadAvatar(avatarFile.uri, avatarFile.type, avatarFile.name);
             } else if (avatarUri === null) {
                 // 画像が削除された場合
                 avatarUrl = null;
+            } else if (avatarUri && !avatarFile) {
+                // 既存の画像をそのまま使用（変更なし）
+                // avatarUriがURLの場合はそのまま、ローカルURIの場合は既存のURLを使用
+                if (avatarUri.startsWith('http://') || avatarUri.startsWith('https://') || avatarUri.startsWith('/api/')) {
+                    avatarUrl = avatarUri;
+                } else {
+                    // ローカルURIの場合は既存のURLを維持
+                    avatarUrl = user?.avatar_url;
+                }
             }
 
             const updatedUser = await updateUser({
@@ -250,13 +264,10 @@ export default function ProfileEditScreen({ onBack }: { onBack: () => void }) {
                         {/* プロフィール画像 */}
                         <View style={styles.avatarSection}>
                             <View style={styles.avatarContainer}>
-                                {avatarUri ? (
-                                    <Image source={{ uri: avatarUri }} style={styles.avatar} />
-                                ) : (
-                                    <View style={styles.avatarPlaceholder}>
-                                        <Ionicons name="person" size={40} color="#9ca3af" />
-                                    </View>
-                                )}
+                                <Image 
+                                    source={{ uri: avatarUri || DEFAULT_USER_AVATAR_URL }} 
+                                    style={styles.avatar} 
+                                />
                             </View>
                             <View style={styles.avatarButtons}>
                                 <TouchableOpacity
@@ -476,13 +487,6 @@ const styles = StyleSheet.create({
     avatar: {
         width: '100%',
         height: '100%',
-    },
-    avatarPlaceholder: {
-        width: '100%',
-        height: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f3f4f6',
     },
     avatarButtons: {
         flexDirection: 'row',

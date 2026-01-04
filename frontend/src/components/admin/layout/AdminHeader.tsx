@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { DEFAULT_USER_AVATAR_URL } from "@/constants/user";
 
 export const AdminHeader: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-
-    const userInitial = user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U";
 
     return (
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-8 shrink-0">
@@ -14,9 +13,11 @@ export const AdminHeader: React.FC = () => {
                     onClick={() => navigate("/admin/settings")}
                     className="flex items-center gap-2 border-l pl-4 ml-2 text-slate-700 hover:text-sky-600 transition-colors"
                 >
-                    <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-bold">
-                        {userInitial}
-                    </div>
+                    <img
+                        src={user?.avatar_url || DEFAULT_USER_AVATAR_URL}
+                        alt={user?.name || user?.email || "ユーザー"}
+                        className="w-8 h-8 rounded-full object-cover"
+                    />
                     <span className="text-sm font-medium">{user?.name || user?.email || "ユーザー"}</span>
                 </button>
             </div>

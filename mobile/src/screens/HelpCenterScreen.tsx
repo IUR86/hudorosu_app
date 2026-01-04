@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -6,9 +6,11 @@ import {
     StyleSheet,
     ScrollView,
     Linking,
+    ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenHeader from '../components/ScreenHeader';
+import { fetchFaqs, Faq } from '../services/faqService';
 
 export default function HelpCenterScreen({
     onBack,
@@ -20,39 +22,27 @@ export default function HelpCenterScreen({
     onNavigateToPrivacy?: () => void;
 }) {
     const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+    const [faqs, setFaqs] = useState<Faq[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const faqs = [
-        {
-            id: 1,
-            question: 'アプリの使い方を教えてください',
-            answer: 'キッチン日和は、食材の在庫管理とレシピ提案を行うアプリです。\n\n1. Stock: 在庫にある食材を管理します\n2. Recipe: レシピを検索・閲覧します\n3. Plan: 食事計画を立てます\n4. Menu: 設定やプロフィールを管理します',
-        },
-        {
-            id: 2,
-            question: '食材を追加するには？',
-            answer: 'Stock画面の「+」ボタンをタップして、食材名、カテゴリー、期限日などを入力してください。保存すると在庫に追加されます。',
-        },
-        {
-            id: 3,
-            question: 'パスワードを忘れてしまいました',
-            answer: '現在、パスワードリセット機能は実装されていません。管理者にお問い合わせください。',
-        },
-        {
-            id: 4,
-            question: 'アカウントを削除したい',
-            answer: 'アカウントの削除をご希望の場合は、管理者にお問い合わせください。',
-        },
-        {
-            id: 5,
-            question: 'データはどこに保存されますか？',
-            answer: 'すべてのデータは安全なサーバーに保存され、暗号化されています。プライバシーを保護するため、適切なセキュリティ対策を講じています。',
-        },
-        {
-            id: 6,
-            question: 'オフラインで使用できますか？',
-            answer: '現在、オフライン機能は実装されていません。インターネット接続が必要です。',
-        },
-    ];
+    useEffect(() => {
+        const loadFaqs = async () => {
+            try {
+                setIsLoading(true);
+                setError(null);
+                const data = await fetchFaqs();
+                setFaqs(data);
+            } catch (err: any) {
+                console.error('FAQ取得エラー:', err);
+                setError('FAQの取得に失敗しました');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadFaqs();
+    }, []);
 
     const toggleFaq = (id: number) => {
         setExpandedFaq(expandedFaq === id ? null : id);
@@ -81,33 +71,49 @@ export default function HelpCenterScreen({
                 {/* よくある質問セクション */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>よくある質問</Text>
-                    <View style={styles.faqContainer}>
-                        {faqs.map((faq) => (
-                            <View key={faq.id} style={styles.faqCard}>
-                                <TouchableOpacity
-                                    style={styles.faqHeader}
-                                    onPress={() => toggleFaq(faq.id)}
-                                    activeOpacity={0.7}
-                                >
-                                    <Text style={styles.faqQuestion}>{faq.question}</Text>
-                                    <Ionicons
-                                        name={
-                                            expandedFaq === faq.id
-                                                ? 'chevron-up'
-                                                : 'chevron-down'
-                                        }
-                                        size={20}
-                                        color="#6B8E6B"
-                                    />
-                                </TouchableOpacity>
-                                {expandedFaq === faq.id && (
-                                    <View style={styles.faqAnswer}>
-                                        <Text style={styles.faqAnswerText}>{faq.answer}</Text>
-                                    </View>
-                                )}
-                            </View>
-                        ))}
-                    </View>
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#6B8E6B" />
+                            <Text style={styles.loadingText}>読み込み中...</Text>
+                        </View>
+                    ) : error ? (
+                        <View style={styles.errorContainer}>
+                            <Ionicons name="alert-circle-outline" size={32} color="#ef4444" />
+                            <Text style={styles.errorText}>{error}</Text>
+                        </View>
+                    ) : faqs.length === 0 ? (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>FAQが登録されていません</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.faqContainer}>
+                            {faqs.map((faq) => (
+                                <View key={faq.id} style={styles.faqCard}>
+                                    <TouchableOpacity
+                                        style={styles.faqHeader}
+                                        onPress={() => toggleFaq(faq.id)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Text style={styles.faqQuestion}>{faq.question}</Text>
+                                        <Ionicons
+                                            name={
+                                                expandedFaq === faq.id
+                                                    ? 'chevron-up'
+                                                    : 'chevron-down'
+                                            }
+                                            size={20}
+                                            color="#6B8E6B"
+                                        />
+                                    </TouchableOpacity>
+                                    {expandedFaq === faq.id && (
+                                        <View style={styles.faqAnswer}>
+                                            <Text style={styles.faqAnswerText}>{faq.answer}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                            ))}
+                        </View>
+                    )}
                 </View>
 
                 {/* お問い合わせセクション */}
@@ -312,6 +318,36 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#374151',
+    },
+    loadingContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 40,
+    },
+    loadingText: {
+        marginTop: 12,
+        fontSize: 14,
+        color: '#6b7280',
+    },
+    errorContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 40,
+    },
+    errorText: {
+        marginTop: 12,
+        fontSize: 14,
+        color: '#ef4444',
+        textAlign: 'center',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 40,
+    },
+    emptyText: {
+        fontSize: 14,
+        color: '#6b7280',
     },
 });
 

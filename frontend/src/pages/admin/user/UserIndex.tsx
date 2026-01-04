@@ -10,6 +10,7 @@ import { fetchUsers, deleteUser } from '@/services/userService';
 import { ROLE, ROLE_BADGE_COLORS, ROLE_LABELS } from '@/constants/role';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useAuth } from '@/contexts/AuthContext';
+import { DEFAULT_USER_AVATAR_URL } from '@/constants/user';
 
 export const UserIndexPage: React.FC = () => {
     const navigate = useNavigate();
@@ -181,17 +182,11 @@ export const UserIndexPage: React.FC = () => {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center gap-3">
-                                                        {user.avatar_url ? (
-                                                            <img
-                                                                src={user.avatar_url}
-                                                                alt={user.name || user.email}
-                                                                className="w-10 h-10 rounded-full object-cover"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center">
-                                                                <i className="fas fa-user text-sky-600"></i>
-                                                            </div>
-                                                        )}
+                                                        <img
+                                                            src={user.avatar_url || DEFAULT_USER_AVATAR_URL}
+                                                            alt={user.name || user.email}
+                                                            className="w-10 h-10 rounded-full object-cover"
+                                                        />
                                                         <div>
                                                             <div className="text-sm font-bold text-slate-900">
                                                                 {user.name || '名前未設定'}

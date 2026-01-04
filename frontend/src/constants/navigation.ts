@@ -7,5 +7,6 @@ export const ADMIN_NAV_ITEMS: NavItems = [
     { label: '料理管理', icon: 'fas fa-utensils', path: '/admin/recipe' },
     { label: 'カテゴリ管理', icon: 'fas fa-tags', path: '/admin/category' },
     { label: 'アレルゲン管理', icon: 'fas fa-exclamation-triangle', path: '/admin/allergen' },
+    { label: 'FAQ管理', icon: 'fas fa-question-circle', path: '/admin/faq' },
     { label: 'ログインログ', icon: 'fas fa-history', path: '/admin/login-logs' },
 ];

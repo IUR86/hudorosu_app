@@ -2,6 +2,27 @@ import apiClient from '@/utils/axiosConfig';
 import { User, UserResponse } from '@/types/user';
 
 /**
+ * 画像をアップロードする
+ * @param file アップロードする画像ファイル
+ * @returns アップロードされた画像のURL
+ */
+export const uploadAvatar = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    // FormDataを使う場合、axiosが自動的にContent-Typeをmultipart/form-dataに設定する
+    const response = await apiClient.post<{ url: string; filename: string; message: string }>('/admin/upload/avatar', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    
+    // フルURLを返す（APIのベースURL + 相対パス）
+    const baseUrl = apiClient.defaults.baseURL || '';
+    return baseUrl + response.data.url;
+};
+
+/**
  * 現在のユーザー情報を取得する
  * @returns ユーザー情報
  */
@@ -15,7 +36,7 @@ export const getCurrentUser = async (): Promise<User> => {
  * @param data 更新するユーザー情報
  * @returns 更新されたユーザー情報
  */
-export const updateUser = async (data: { name?: string; email?: string }): Promise<User> => {
+export const updateUser = async (data: { name?: string; email?: string; avatar_url?: string | null }): Promise<User> => {
     const response = await apiClient.put<UserResponse>('/admin/settings/me', data);
     return response.data;
 };

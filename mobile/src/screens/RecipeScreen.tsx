@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         padding: 48,
-        marginTop: 24,
+        marginTop: 82,
         alignItems: 'center',
         justifyContent: 'center',
     },

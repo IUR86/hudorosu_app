@@ -1,4 +1,5 @@
 import apiClient from '../config/api';
+import { buildImageUrl } from '@shared/utils/imagePath';
 
 export interface User {
   id: number;
@@ -39,5 +40,33 @@ export const changePassword = async (data: {
 }): Promise<{ message: string }> => {
   const response = await apiClient.put<{ message: string }>('/admin/settings/password', data);
   return response.data;
+};
+
+/**
+ * 画像をアップロードする
+ * @param uri 画像のURI（ローカルファイルパス）
+ * @param type 画像のMIMEタイプ（例: 'image/jpeg'）
+ * @param name ファイル名
+ * @returns アップロードされた画像のURL
+ */
+export const uploadAvatar = async (uri: string, type: string = 'image/jpeg', name: string = 'avatar.jpg'): Promise<string> => {
+  const formData = new FormData();
+  
+  // React Native用のFormData形式
+  formData.append('avatar', {
+    uri: uri,
+    type: type,
+    name: name,
+  } as any);
+  
+  const response = await apiClient.post<{ url: string; filename: string; message: string }>('/admin/upload/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  
+  // フルURLを返す（共通のユーティリティ関数を使用）
+  const baseUrl = apiClient.defaults.baseURL || '';
+  return buildImageUrl(response.data.url, baseUrl);
 };
 
